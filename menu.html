@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мое меню | Coffee Alchemy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">CA</span>
+          <span>Coffee Alchemy</span>
+        </a>
+        <nav class="topnav" aria-label="Навигация">
+          <a href="index.html">Генератор</a>
+          <a href="menu.html">Мое меню</a>
+          <a href="catalog.html">Ингредиенты</a>
+        </nav>
+      </header>
+
+      <main class="menu-page">
+        <section class="menu-hero">
+          <div>
+            <div class="section-kicker">личная подборка</div>
+            <h1>Мое меню</h1>
+            <p>Сохраняйте удачные рецепты из генератора и собирайте собственную кофейную карту для бара, дома или дегустации.</p>
+          </div>
+          <a class="primary-link" href="index.html">Создать рецепт</a>
+        </section>
+
+        <section class="menu-board" id="menuBoard" aria-live="polite"></section>
+      </main>
+    </div>
+
+    <script src="menu.js"></script>
+  </body>
+</html>

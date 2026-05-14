@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ингредиенты | Coffee Alchemy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="index.html">
+          <span class="brand-mark">CA</span>
+          <span>Coffee Alchemy</span>
+        </a>
+        <nav class="topnav" aria-label="Навигация">
+          <a href="index.html">Генератор</a>
+          <a href="menu.html">Мое меню</a>
+          <a href="catalog.html">Ингредиенты</a>
+          <button class="ghost-button" id="catalogLogin" type="button">Вход</button>
+        </nav>
+      </header>
+
+      <main class="catalog-page">
+        <section class="catalog-hero">
+          <div>
+            <div class="section-kicker">ингридиенты</div>
+            <h1>Ингридиенты</h1>
+            <p id="registrationHint">Редактировать и добавлять свои ингредиенты можно только после регистрации.</p>
+          </div>
+          <aside class="auth-card" id="authCard"></aside>
+        </section>
+
+        <section class="editor-layout">
+          <form class="ingredient-form locked" id="ingredientForm" hidden>
+            <div class="section-kicker">новый ингредиент</div>
+            <h2>Добавить ингредиент</h2>
+            <label>
+              Название
+              <input name="name" required placeholder="Например, сироп лаванда" />
+            </label>
+            <label>
+              Категория
+              <select name="category">
+                <option>Кофе</option>
+                <option>Молочная часть</option>
+                <option>Сиропы</option>
+                <option>Сладость и баланс</option>
+                <option>Специи</option>
+                <option>Финиш</option>
+              </select>
+            </label>
+            <div class="slider-grid">
+              <label class="control">Калорийность <input type="range" name="calories" min="0" max="5" value="3" /></label>
+              <label class="control">Сливочность <input type="range" name="creaminess" min="0" max="5" value="2" /></label>
+              <label class="control">Сладость <input type="range" name="sweetness" min="0" max="5" value="3" /></label>
+              <label class="control">Горечь <input type="range" name="bitterness" min="0" max="5" value="1" /></label>
+            </div>
+            <label>
+              Аромат
+              <input name="aroma" required placeholder="ваниль, цветы, орехи" />
+            </label>
+            <label>
+              Стоимость, ₽
+              <input name="cost" type="number" min="0" step="1" value="120" />
+            </label>
+            <label class="check-row">
+              <input name="available" type="checkbox" checked />
+              Есть в наличии
+            </label>
+            <button class="primary-button" type="submit">Добавить</button>
+          </form>
+
+          <section class="catalog-workspace">
+            <div class="catalog-toolbar">
+              <label>
+                Поиск
+                <input id="catalogSearch" placeholder="кофе, сироп, корица..." />
+              </label>
+              <label>
+                Категория
+                <select id="categoryFilter">
+                  <option value="all">Все</option>
+                </select>
+              </label>
+              <label class="show-hidden-control" id="showHiddenControl" hidden>
+                <input id="showHiddenIngredients" type="checkbox" />
+                Показать скрытые
+              </label>
+            </div>
+            <div class="ingredient-table" id="ingredientTable"></div>
+            <div class="catalog-pagination" id="catalogPagination"></div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="registration-modal" id="catalogDialog">
+      <form method="dialog" class="registration-form" id="catalogAuthForm">
+        <button class="close-button" type="button" value="cancel" aria-label="Закрыть">×</button>
+        <div class="section-kicker">демо-вход</div>
+        <h2>Войти в ингредиенты</h2>
+        <p>Используйте <strong>demo@coffee.local</strong> / <strong>coffee123</strong> или создайте локальную регистрацию любым email.</p>
+        <label>Email <input name="email" inputmode="email" required placeholder="demo@coffee.local" /></label>
+        <label>Пароль <input name="password" type="password" placeholder="coffee123" /></label>
+        <button class="primary-button" type="submit">Войти</button>
+      </form>
+    </dialog>
+
+    <script src="catalog.js"></script>
+  </body>
+</html>
