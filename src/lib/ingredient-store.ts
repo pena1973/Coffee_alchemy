@@ -81,7 +81,10 @@ export function listCatalogIngredients(userId?: string) {
        and user_ingredient_settings.user_id = @userId
       where (ingredients.hidden = 0 or ingredients.owner_user_id = @userId)
         and (ingredients.owner_user_id is null or ingredients.owner_user_id = @userId)
-      order by ingredients.category, ingredients.name`,
+      order by
+        case when ingredients.owner_user_id = @userId then 0 else 1 end,
+        ingredients.category,
+        ingredients.name`,
     )
     .all({ userId }) as IngredientRow[];
 

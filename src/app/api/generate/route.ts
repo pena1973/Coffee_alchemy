@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { generateRecipeWithDO } from "@/lib/do-inference";
+import { generateRecipeSetWithDO } from "@/lib/do-inference";
 import { createRecipe } from "@/lib/recipe-store";
 import type { RecipeRequest, TasteScale } from "@/types";
 import { currentUser } from "@/lib/auth";
+import { listCatalogIngredients } from "@/lib/ingredient-store";
 
 export const runtime = "nodejs";
 
@@ -24,6 +25,7 @@ const schema = z.object({
 
 export async function POST(request: Request) {
   const parsed = schema.parse(await request.json());
+  const user = await currentUser();
   const input: RecipeRequest = {
     barName: parsed.barName,
     temperature: parsed.temperature,
@@ -35,24 +37,31 @@ export async function POST(request: Request) {
     salt: parsed.salt as TasteScale,
     aroma: parsed.aroma,
   };
-  const generated = await generateRecipeWithDO(input);
-
-  if (!parsed.saveToMenu) {
-    return NextResponse.json({ recipe: generated });
+  const catalogIngredients = listCatalogIngredients(user?.id);
+  const availableIngredients = catalogIngredients.filter((ingredient) => !ingredient.hidden && (!user || ingredient.available));
+  let generated;
+  try {
+    generated = await generateRecipeSetWithDO(input, availableIngredients);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Inference connection failed";
+    return NextResponse.json({ error: message.includes("fetch failed") ? "Нет подключения к сервису генерации." : message }, { status: 503 });
   }
 
-  const user = await currentUser();
+  if (!parsed.saveToMenu) {
+    return NextResponse.json(generated);
+  }
+
   if (!user) {
     return NextResponse.json({ error: "Login required to save recipes" }, { status: 401 });
   }
 
   const recipe = createRecipe({
     userId: user.id,
-    ...generated,
+    ...generated.recipe,
     prepared: false,
     rating: null,
     inMenu: true,
   });
 
-  return NextResponse.json({ recipe }, { status: 201 });
+  return NextResponse.json({ recipe, variants: generated.variants, usage: generated.usage }, { status: 201 });
 }

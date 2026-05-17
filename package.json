@@ -8,8 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "db:init": "node scripts/init-db.cjs",
-    "db:migrate": "node scripts/init-db.cjs",
-    "db:seed": "node scripts/seed-mock-data.cjs"
+    "db:migrate": "node scripts/init-db.cjs"
   },
   "dependencies": {
     "better-sqlite3": "11.10.0",

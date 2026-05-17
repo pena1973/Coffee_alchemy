@@ -15,19 +15,10 @@ export default async function CatalogPage() {
       <main className="catalog-page">
         <section className="catalog-hero">
           <div>
-            <div className="section-kicker">ингридиенты</div>
-            <h1>Ингридиенты</h1>
-            {!user ? <p id="registrationHint">Редактировать и добавлять свои ингредиенты можно только после регистрации.</p> : null}
+            <div className="section-kicker">ингредиенты</div>
+            <h1>Ингредиенты</h1>
+            {!user ? <p id="registrationHint">Если хотите менять ингредиенты, добавлять свои продукты, управлять наличием и ценой, зарегистрируйтесь.</p> : null}
           </div>
-          <aside className="auth-card compact-auth" id="authCard">
-            <span>Режим</span>
-            <strong>{user ? user.name : "Гость"}</strong>
-            <p>
-              {user
-                ? "Можно добавлять свои ингредиенты, редактировать их, настраивать наличие, цену и скрытие."
-                : "Можно смотреть ингредиенты. Добавление, стоимость и наличие доступны после регистрации."}
-            </p>
-          </aside>
         </section>
         <CatalogClient initialIngredients={ingredients} canEdit={Boolean(user)} />
       </main>

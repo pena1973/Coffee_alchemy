@@ -1,9 +1,11 @@
 import { cookies } from "next/headers";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { db } from "@/lib/db";
 import type { User, UserRole } from "@/types";
 
 const sessionCookie = "coffee_session";
+const defaultAdminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase() || "admin@coffee.local";
+const defaultAdminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
 type UserRow = {
   id: string;
@@ -33,10 +35,10 @@ export function seedUsers() {
   const insert = db.prepare("insert into users (id, email, name, role, password_hash) values (@id, @email, @name, @role, @passwordHash)");
   insert.run({
     id: "admin-demo",
-    email: "admin@coffee.local",
+    email: defaultAdminEmail,
     name: "Admin",
     role: "admin",
-    passwordHash: hashPassword("admin123"),
+    passwordHash: hashPassword(defaultAdminPassword),
   });
   insert.run({
     id: "user-demo",
@@ -50,8 +52,45 @@ export function seedUsers() {
 seedUsers();
 
 export function authenticate(email: string, password: string) {
-  const row = db.prepare("select id, email, name, role, created_at from users where email = ? and password_hash = ?").get(email, hashPassword(password)) as UserRow | undefined;
+  const normalizedEmail = email.trim().toLowerCase();
+  const row = db.prepare("select id, email, name, role, created_at from users where email = ? and password_hash = ?").get(normalizedEmail, hashPassword(password)) as UserRow | undefined;
   return row ? rowToUser(row) : null;
+}
+
+export function registerUser(input: { email: string; name: string; password: string }) {
+  const email = input.email.trim().toLowerCase();
+  const name = input.name.trim();
+  const password = input.password.trim();
+
+  if (!name || !email || !password) {
+    throw new Error("Заполните имя, email и пароль.");
+  }
+  if (!email.includes("@")) {
+    throw new Error("Введите корректный email.");
+  }
+  if (password.length < 6) {
+    throw new Error("Пароль должен быть не короче 6 символов.");
+  }
+
+  const id = randomUUID();
+  try {
+    db.prepare("insert into users (id, email, name, role, password_hash) values (@id, @email, @name, @role, @passwordHash)").run({
+      id,
+      email,
+      name,
+      role: "user",
+      passwordHash: hashPassword(password),
+    });
+  } catch (error) {
+    const sqliteError = error as { code?: string };
+    if (sqliteError.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      throw new Error("Пользователь с таким email уже зарегистрирован.");
+    }
+    throw error;
+  }
+
+  const row = db.prepare("select id, email, name, role, created_at from users where id = ?").get(id) as UserRow;
+  return rowToUser(row);
 }
 
 export async function setSession(user: User) {
@@ -112,4 +151,30 @@ export function listUsersWithRecipes() {
     recipeCount: row.recipe_count,
     recipeTitles: row.recipe_titles ? row.recipe_titles.split("|||") : [],
   }));
+}
+
+export function deleteUserWithData(userId: string, currentAdminId: string) {
+  if (userId === currentAdminId) {
+    throw new Error("Нельзя удалить собственную учетную запись.");
+  }
+
+  const user = db.prepare("select id, role from users where id = ?").get(userId) as { id: string; role: UserRole } | undefined;
+  if (!user) return;
+
+  if (user.role === "admin") {
+    const adminCount = db.prepare("select count(*) as count from users where role = 'admin'").get() as { count: number };
+    if (adminCount.count <= 1) {
+      throw new Error("Нельзя удалить последнего администратора.");
+    }
+  }
+
+  const remove = db.transaction(() => {
+    db.prepare("delete from recipes where user_id = ?").run(userId);
+    db.prepare("delete from user_ingredient_settings where user_id = ?").run(userId);
+    db.prepare("delete from user_ingredient_settings where ingredient_id in (select id from ingredients where owner_user_id = ?)").run(userId);
+    db.prepare("delete from ingredients where owner_user_id = ?").run(userId);
+    db.prepare("delete from users where id = ?").run(userId);
+  });
+
+  remove();
 }

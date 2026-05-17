@@ -15,11 +15,23 @@ export default async function MenuPage() {
       <SiteNav />
       <main className="menu-page">
         <section className="menu-hero">
-          <div className="section-kicker">личная подборка</div>
-          <h1>Мое меню</h1>
-          {!user ? <p><Link href="/login">Войдите</Link>, чтобы видеть сохраненные рецепты.</p> : <p>Сохраняйте рецепты, отмечайте приготовление и включайте лучшие напитки в меню.</p>}
+          <div>
+            <div className="section-kicker">личная подборка</div>
+            <h1>Мое меню</h1>
+          </div>
+          {user ? <p>Сохраняйте рецепты, отмечайте приготовление и включайте лучшие напитки в меню.</p> : null}
         </section>
-        {user ? <MenuClient initialRecipes={recipes} /> : null}
+        {user ? (
+          <MenuClient initialRecipes={recipes} />
+        ) : (
+          <section className="menu-empty guest-menu-empty">
+            <div className="section-kicker">доступ после входа</div>
+            <h2>Войдите, чтобы видеть сохраненные рецепты</h2>
+            <Link className="primary-link" href="/login">
+              Войти
+            </Link>
+          </section>
+        )}
       </main>
     </div>
   );

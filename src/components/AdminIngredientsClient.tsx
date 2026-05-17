@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { CustomSelect } from "@/components/CustomSelect";
 import type { Ingredient } from "@/types";
 
 const categories = ["Кофе", "Молочная часть", "Сиропы", "Сладость и баланс", "Специи", "Финиш"];
@@ -116,11 +117,14 @@ export function AdminIngredientsClient({ initialIngredients }: { initialIngredie
     setPage(1);
   }
 
+  const categoryOptions = categories.map((item) => ({ value: item, label: item }));
+  const filterCategoryOptions = [{ value: "all", label: "Все" }, ...categoryOptions];
+
   return (
     <>
       <form className="admin-add-form" onSubmit={create} noValidate>
         <label>Название<input name="name" aria-required="true" placeholder="Например, сироп лаванда" /></label>
-        <label>Категория<select name="category" defaultValue="Кофе">{categories.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <label>Категория<CustomSelect name="category" options={categoryOptions} defaultValue="Кофе" /></label>
         <label>Аромат<input name="aroma" aria-required="true" placeholder="ваниль, цветы, орехи" /></label>
         <label>Стоимость, ₽<input name="cost" type="number" min="0" defaultValue="120" /></label>
         <label>Калорийность<input name="calories" type="number" min="0" max="5" defaultValue="1" /></label>
@@ -135,14 +139,14 @@ export function AdminIngredientsClient({ initialIngredients }: { initialIngredie
 
       <div className="catalog-toolbar admin-toolbar">
         <label>Поиск<input value={query} onChange={(event) => resetPage(() => setQuery(event.target.value))} placeholder="кофе, сироп, корица..." /></label>
-        <label>Категория<select value={category} onChange={(event) => resetPage(() => setCategory(event.target.value))}><option value="all">Все</option>{categories.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+        <label>Категория<CustomSelect options={filterCategoryOptions} value={category} onValueChange={(nextCategory) => resetPage(() => setCategory(nextCategory))} /></label>
       </div>
 
       <div className="admin-edit-list">
         {pageItems.map((ingredient) => (
           <form className={`admin-edit-row ${ingredient.hidden ? "hidden-ingredient" : ""}`} onSubmit={(event) => save(event, ingredient.id)} key={ingredient.id}>
             <label>Название<input name="name" aria-required="true" defaultValue={ingredient.name} /></label>
-            <label>Категория<select name="category" defaultValue={ingredient.category}>{categories.map((item) => <option key={item}>{item}</option>)}</select></label>
+            <label>Категория<CustomSelect name="category" options={categoryOptions} defaultValue={ingredient.category} /></label>
             <label>Аромат<input name="aroma" aria-required="true" defaultValue={ingredient.aroma} /></label>
             <label>Цена<input name="cost" type="number" min="0" defaultValue={ingredient.cost} /></label>
             <label>Ккал<input name="calories" type="number" min="0" max="5" defaultValue={ingredient.calories} /></label>

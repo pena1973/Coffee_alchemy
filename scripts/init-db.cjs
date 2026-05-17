@@ -136,10 +136,12 @@ function hashPassword(password) {
   return createHash("sha256").update(`coffee:${password}`).digest("hex");
 }
 
+const defaultAdminEmail = (process.env.ADMIN_EMAIL || "admin@coffee.local").trim().toLowerCase();
+const defaultAdminPassword = process.env.ADMIN_PASSWORD || "admin123";
 const userCount = db.prepare("select count(*) as count from users").get().count;
 if (userCount === 0) {
   const insert = db.prepare("insert into users (id, email, name, role, password_hash) values (@id, @email, @name, @role, @passwordHash)");
-  insert.run({ id: "admin-demo", email: "admin@coffee.local", name: "Admin", role: "admin", passwordHash: hashPassword("admin123") });
+  insert.run({ id: "admin-demo", email: defaultAdminEmail, name: "Admin", role: "admin", passwordHash: hashPassword(defaultAdminPassword) });
   insert.run({ id: "user-demo", email: "demo@coffee.local", name: "Demo Creator", role: "user", passwordHash: hashPassword("coffee123") });
 }
 

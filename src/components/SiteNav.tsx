@@ -18,15 +18,21 @@ export async function SiteNav() {
       </Link>
       <nav className="topnav">
         <Link href="/">Генератор</Link>
-        <Link href="/catalog">Ингридиенты</Link>
+        <Link href="/catalog">Ингредиенты</Link>
         <Link href="/menu">Мое меню</Link>
         {user?.role === "admin" ? <Link href="/admin">Админка</Link> : null}
         {user ? (
-          <form action={logoutAction}>
-            <button className="nav-button" type="submit">Выход</button>
+          <form action={logoutAction} className="nav-auth-block">
+            <span>{user.email}</span>
+            <button className="nav-button" type="submit">
+              Выход
+            </button>
           </form>
         ) : (
-          <Link href="/login">Вход</Link>
+          <div className="nav-auth-block">
+            <span>Гость</span>
+            <Link href="/login">Вход</Link>
+          </div>
         )}
       </nav>
     </header>

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import { CustomSelect } from "@/components/CustomSelect";
 import type { Ingredient } from "@/types";
 
 type CatalogClientProps = {
@@ -99,6 +100,8 @@ export function CatalogClient({ initialIngredients, canEdit }: CatalogClientProp
   }
 
   const formKey = editing?.id ?? "new";
+  const categoryOptions = categories.map((item) => ({ value: item, label: item }));
+  const filterCategoryOptions = [{ value: "all", label: "Все" }, ...filterCategories.map((item) => ({ value: item, label: item }))];
 
   return (
     <section className={`editor-layout ${canEdit ? "" : "guest"}`}>
@@ -107,7 +110,7 @@ export function CatalogClient({ initialIngredients, canEdit }: CatalogClientProp
           <div className="section-kicker">новый ингредиент</div>
           <h2>{editing ? "Редактировать" : "Добавить ингредиент"}</h2>
           <label>Название<input name="name" aria-required="true" placeholder="Например, сироп лаванда" defaultValue={editing?.name ?? emptyIngredient.name} /></label>
-          <label>Категория<select name="category" defaultValue={editing?.category ?? emptyIngredient.category}>{categories.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <label>Категория<CustomSelect name="category" options={categoryOptions} defaultValue={editing?.category ?? emptyIngredient.category} /></label>
           <div className="slider-grid">
             <label className="control">Калорийность <input type="range" name="calories" min="0" max="5" defaultValue={editing?.calories ?? emptyIngredient.calories} /></label>
             <label className="control">Сливочность <input type="range" name="creaminess" min="0" max="5" defaultValue={editing?.creaminess ?? emptyIngredient.creaminess} /></label>
@@ -125,7 +128,7 @@ export function CatalogClient({ initialIngredients, canEdit }: CatalogClientProp
       <section className="catalog-workspace">
         <div className="catalog-toolbar">
           <label>Поиск<input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="кофе, сироп, корица..." /></label>
-          <label>Категория<select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">Все</option>{filterCategories.map((item) => <option key={item} value={item}>{item}</option>)}</select></label>
+          <label>Категория<CustomSelect options={filterCategoryOptions} value={category} onValueChange={setCategory} /></label>
           {canEdit ? <label className="show-hidden-control"><input type="checkbox" checked={showHidden} onChange={(event) => setShowHidden(event.target.checked)} /> Показать скрытые</label> : null}
         </div>
         <div className="ingredient-table">
