@@ -36,4 +36,11 @@ jobs:
             npm run build
             pm2 restart coffee --update-env || pm2 start npm --name coffee -- start
             pm2 save
-            curl -I --max-time 10 http://127.0.0.1:3000
+            for i in $(seq 1 20); do
+              if curl -I --max-time 10 http://127.0.0.1:3000; then
+                exit 0
+              fi
+              sleep 2
+            done
+            pm2 logs coffee --lines 80 --nostream
+            exit 1
