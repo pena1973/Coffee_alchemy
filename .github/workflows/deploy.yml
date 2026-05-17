@@ -30,7 +30,7 @@ jobs:
             set +a
             git fetch origin main
             git pull --ff-only origin main
-            npm ci --no-audit --no-fund
+            npm ci --include=dev --no-audit --no-fund
             npm run db:init
             rm -rf .next
             npm run build
