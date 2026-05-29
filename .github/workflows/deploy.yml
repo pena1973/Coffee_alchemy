@@ -1,46 +1,25 @@
-name: Deploy to Droplet
+name: Deploy coffee-ai to demo-server
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 concurrency:
-  group: deploy-production
+  group: deploy-coffee-ai-demo
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DROPLET_HOST }}
-          username: deploy
+          username: ${{ secrets.DROPLET_USER }}
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
-            set -e
-            cd /var/www/coffee/app
-            set -a
-            . ./.env.production
-            set +a
-            git fetch origin main
-            git pull --ff-only origin main
-            npm ci --include=dev --no-audit --no-fund
-            npm run db:init
-            rm -rf .next
-            npm run build
-            pm2 restart coffee --update-env || pm2 start npm --name coffee -- start
-            pm2 save
-            for i in $(seq 1 20); do
-              if curl -I --max-time 10 http://127.0.0.1:3000; then
-                exit 0
-              fi
-              sleep 2
-            done
-            pm2 logs coffee --lines 80 --nostream
-            exit 1
+            /opt/demos/infra/scripts/deploy-project.sh coffee-ai
